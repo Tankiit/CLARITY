@@ -1,0 +1,73 @@
+# Model files and checkpoints
+*.pt
+*.pth
+*.bin
+*.safetensors
+best_model.pt
+checkpoints/
+
+# Cache and data directories
+cache/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Dataset cache files
+*.arrow
+*.lock
+dataset_info.json
+*_builder.lock
+
+# Large result directories
+results/
+*_models/*/checkpoints/
+*_models/*/plots/
+*_models/*/visualizations*/
+visualizations/
+plots/*.png
+concept_analysis/*.png
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Environment files
+.env
+.venv
+env/
+venv/
+
+# Large data files
+*.csv
+*.json
+*.html
+*.pdf
+*.png
+*.jpg
+*.jpeg
+
+# But keep essential config and small result files
+!config.json
+!*.py
+!*.sh
+!*.md
+!*.txt
+!*.yml
+!*.yaml
+!requirements.txt 
