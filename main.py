@@ -39,6 +39,8 @@ def parse_arguments():
                        help="Skip training and only run inference from a saved model")
     parser.add_argument("--model_path", type=str, default=None,
                        help="Path to saved model for inference only mode")
+    parser.add_argument("--causal_discovery", action="store_true",
+                       help="Run causal discovery analysis on concept activations")
     
     return parser.parse_args()
 
@@ -155,6 +157,95 @@ def visualize_explanation(text, explanation, save_path=None):
         plt.close()
     else:
         plt.show()
+
+def run_causal_discovery(model, tokenizer, dataset, config, output_dir):
+    """Run causal discovery on concept activations"""
+    try:
+        from causallearn.search.ConstraintBased.PC import pc
+        from causallearn.utils.GraphUtils import GraphUtils
+        from causallearn.utils.cit import fisherz
+    except ImportError:
+        print("causallearn package not found. Skipping causal discovery.")
+        print("Install with: pip install causal-learn")
+        return None
+
+    # Setup causal discovery directory
+    causal_dir = os.path.join(output_dir, "causal_discovery")
+    os.makedirs(causal_dir, exist_ok=True)
+
+    # Prepare DataLoader
+    from torch.utils.data import DataLoader
+    dataloader = DataLoader(dataset, batch_size=config.batch_size, shuffle=False)
+    
+    # Collect concept activations
+    concept_activations = []
+    model.eval()
+    
+    print("Collecting concept activations for causal discovery...")
+    with torch.no_grad():
+        for i, batch in enumerate(dataloader):
+            if i % 10 == 0:
+                print(f"Processing batch {i}/{len(dataloader)}")
+            
+            inputs = {
+                "input_ids": batch["input_ids"].to(device),
+                "attention_mask": batch["attention_mask"].to(device)
+            }
+            outputs = model(**inputs, output_concepts=True)
+            concept_activations.append(outputs.concept_scores.cpu().numpy())
+    
+    # Create concept matrix (n_samples x n_concepts)
+    concept_matrix = np.concatenate(concept_activations, axis=0)
+    print(f"Collected concept activations matrix: {concept_matrix.shape}")
+    
+    # Run PC algorithm for causal discovery
+    print("Running PC algorithm for causal discovery...")
+    try:
+        cg = pc(
+            concept_matrix, 
+            alpha=0.05, 
+            indep_test=fisherz, 
+            stable=True,
+            uc_rule=0,
+            uc_priority=0
+        )
+        
+        # Save causal graph
+        graph_path = os.path.join(causal_dir, "causal_graph.png")
+        try:
+            pyd = GraphUtils.to_pydot(cg.G)
+            pyd.write_png(graph_path)
+            print(f"Causal graph saved to: {graph_path}")
+        except Exception as e:
+            print(f"Could not save causal graph visualization: {e}")
+        
+        # Save concept activations and adjacency matrix
+        np.save(os.path.join(causal_dir, "concept_activations.npy"), concept_matrix)
+        np.save(os.path.join(causal_dir, "adjacency_matrix.npy"), cg.G.graph)
+        
+        # Save summary statistics
+        with open(os.path.join(causal_dir, "causal_summary.txt"), "w") as f:
+            f.write(f"Causal Discovery Results\n")
+            f.write(f"========================\n\n")
+            f.write(f"Number of concepts: {concept_matrix.shape[1]}\n")
+            f.write(f"Number of samples: {concept_matrix.shape[0]}\n")
+            f.write(f"Number of edges: {np.sum(cg.G.graph != 0)}\n")
+            f.write(f"Alpha level: 0.05\n")
+            f.write(f"Independence test: Fisher's Z\n\n")
+            
+            # Find strongly connected concepts
+            edge_count = np.sum(cg.G.graph != 0, axis=1)
+            top_concepts = np.argsort(edge_count)[-5:]
+            f.write(f"Top 5 most connected concepts:\n")
+            for i, concept_idx in enumerate(top_concepts):
+                f.write(f"  Concept {concept_idx}: {edge_count[concept_idx]} connections\n")
+        
+        print(f"Causal discovery results saved to: {causal_dir}")
+        return cg
+        
+    except Exception as e:
+        print(f"Error during causal discovery: {e}")
+        return None
 
 def visualize_concept_intervention(model, tokenizer, text, concept_idx=0, new_values=[0.0, 0.5, 1.0], save_path=None):
     """
@@ -336,6 +427,25 @@ def main():
                 print(f"  Concept intervention visualization saved to: {intervention_path}")
         
         print(f"\nAll visualizations saved to: {viz_dir}")
+    
+    # Run causal discovery if requested
+    if args.causal_discovery:
+        print("\nRunning causal discovery analysis...")
+        if not args.inference_only:
+            # Use validation dataset for causal discovery
+            causal_graph = run_causal_discovery(
+                model=model,
+                tokenizer=tokenizer, 
+                dataset=datasets['validation'],
+                config=config,
+                output_dir=output_dir
+            )
+            if causal_graph is not None:
+                print("Causal discovery completed successfully!")
+            else:
+                print("Causal discovery failed or was skipped.")
+        else:
+            print("Causal discovery requires a dataset. Please run without --inference_only flag.")
     
     print("\nModel training and evaluation complete!")
 

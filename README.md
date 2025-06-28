@@ -27,6 +27,7 @@ The project implements various text classification models with emphasis on:
 - Ablation studies for understanding model components
 - Concept-attribute mapping analysis
 - Aspect-based rationale comparison
+- Causal discovery analysis between concepts
 - Comprehensive reporting tools
 
 ## Main Scripts
@@ -71,6 +72,16 @@ The repository supports multiple text classification datasets:
 python main.py --dataset ag_news --model distilbert-base-uncased
 ```
 
+### Training with Visualizations and Causal Discovery
+```bash
+python main.py --visualize --causal_discovery
+```
+
+### Fast Training (with LoRA optimization)
+```bash
+python main.py --fast --small --visualize
+```
+
 ### CEBaB Training
 ```bash
 python train_on_cebab.py --model_name distilbert-base-uncased --num_concepts 50
@@ -84,6 +95,11 @@ python visualize_cebab_model.py --model_dir /path/to/model --attribute food --nu
 ### Ablation Analysis
 ```bash
 python ablation_analysis.py --model_path /path/to/model --dataset cebab
+```
+
+### Causal Discovery Analysis
+```bash
+python main.py --causal_discovery --visualize
 ```
 
 ## Model Architecture
@@ -102,6 +118,9 @@ cd CLARITY
 
 # Install dependencies
 pip install torch transformers datasets matplotlib seaborn pandas numpy tqdm
+
+# Optional: For causal discovery analysis
+pip install causal-learn
 ```
 
 ## Directory Structure
@@ -126,6 +145,9 @@ High-level, interpretable features that the model learns to associate with diffe
 
 ### Ablation Studies
 Systematic removal or modification of model components to understand their individual contributions to performance.
+
+### Causal Discovery
+Analysis of causal relationships between learned concepts using constraint-based algorithms (PC algorithm). This helps understand how concepts interact and influence each other within the model.
 
 ## Citation
 
