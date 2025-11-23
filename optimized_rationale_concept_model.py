@@ -702,6 +702,32 @@ def load_and_process_dataset(dataset_name, tokenizer, config):
             'text_field': 'content',
             'label_field': 'label',
             'num_labels': 14
+        },
+        # Causality datasets
+        'copa': {
+            'name': 'super_glue',
+            'subset': 'copa',
+            'text_field': 'premise',  # Will be combined with choice1/choice2
+            'label_field': 'label',
+            'num_labels': 2,
+            'task_type': 'causality',
+            'causality_subtype': 'commonsense_causal_reasoning'
+        },
+        'e_care': {
+            'name': '12ml/e-CARE',
+            'text_field': 'premise',  # Will be combined with hypothesis
+            'label_field': 'label',
+            'num_labels': 2,
+            'task_type': 'causality',
+            'causality_subtype': 'explainable_causal_reasoning'
+        },
+        'balanced_copa': {
+            'name': 'pkavumba/balanced-copa',
+            'text_field': 'premise',
+            'label_field': 'label',
+            'num_labels': 2,
+            'task_type': 'causality',
+            'causality_subtype': 'balanced_causal_reasoning'
         }
     }
 
@@ -1276,8 +1302,9 @@ def main():
 
     # Dataset and model arguments
     parser.add_argument("--dataset", type=str, default="ag_news",
-                        choices=["ag_news", "yelp_polarity", "sst2", "dbpedia"],
-                        help="Dataset to train on")
+                        choices=["ag_news", "yelp_polarity", "sst2", "dbpedia",
+                                 "copa", "e_care", "balanced_copa"],
+                        help="Dataset to train on (includes causality datasets: copa, e_care, balanced_copa)")
     parser.add_argument("--model", type=str, default="distilbert-base-uncased",
                         help="Base model name (e.g., distilbert-base-uncased)")
     parser.add_argument("--num_concepts", type=int, default=50,
