@@ -1,0 +1,503 @@
+{
+  "registry": {
+    "base_classes": {
+      "BaseCBM": {
+        "class": "<class 'cbm_model.BaseCBM'>",
+        "type": "abstract_base",
+        "module": "cbm_model",
+        "docstring": "\n    Abstract base class for Concept Bottleneck Models.\n\n    This class defines the common interface and basic functionality that all CBM\n    implementations should follow. Subclasses need to implement the specific\n    architecture details.\n    ",
+        "methods": [
+          "__call__",
+          "__delattr__",
+          "__dir__",
+          "__getattr__",
+          "__getstate__",
+          "__init__",
+          "__repr__",
+          "__setattr__",
+          "__setstate__",
+          "_apply",
+          "_build_concept_predictor",
+          "_build_feature_extractor",
+          "_build_task_predictor",
+          "_call_impl",
+          "_extract_features",
+          "_get_backward_hooks",
+          "_get_backward_pre_hooks",
+          "_get_name",
+          "_load_from_state_dict",
+          "_maybe_warn_non_full_backward_hook",
+          "_named_members",
+          "_register_load_state_dict_pre_hook",
+          "_register_state_dict_hook",
+          "_replicate_for_data_parallel",
+          "_save_to_state_dict",
+          "_slow_forward",
+          "_wrapped_call_impl",
+          "add_module",
+          "apply",
+          "bfloat16",
+          "buffers",
+          "children",
+          "compile",
+          "compute_loss",
+          "cpu",
+          "cuda",
+          "double",
+          "eval",
+          "extra_repr",
+          "float",
+          "forward",
+          "freeze_feature_extractor",
+          "get_buffer",
+          "get_extra_state",
+          "get_parameter",
+          "get_submodule",
+          "half",
+          "ipu",
+          "load_state_dict",
+          "modules",
+          "named_buffers",
+          "named_children",
+          "named_modules",
+          "named_parameters",
+          "parameters",
+          "predict_concepts",
+          "predict_task_from_concepts",
+          "register_backward_hook",
+          "register_buffer",
+          "register_forward_hook",
+          "register_forward_pre_hook",
+          "register_full_backward_hook",
+          "register_full_backward_pre_hook",
+          "register_load_state_dict_post_hook",
+          "register_module",
+          "register_parameter",
+          "register_state_dict_pre_hook",
+          "requires_grad_",
+          "set_extra_state",
+          "share_memory",
+          "state_dict",
+          "to",
+          "to_empty",
+          "train",
+          "type",
+          "unfreeze_feature_extractor",
+          "xpu",
+          "zero_grad"
+        ],
+        "abstract_methods": [
+          "_build_task_predictor",
+          "_build_feature_extractor",
+          "_build_concept_predictor"
+        ],
+        "properties": []
+      }
+    },
+    "implemented_classes": {
+      "BaselineCBM": {
+        "class": "<class 'cbm_model.BaselineCBM'>",
+        "type": "concrete_implementation",
+        "module": "cbm_model",
+        "docstring": "\n    Simplest possible CBM implementation\n\n    Architecture:\n    Input Image \u2192 ResNet-18 \u2192 Concepts \u2192 Task Prediction\n    ",
+        "base_classes": [
+          "BaseCBM"
+        ],
+        "methods": [
+          "__call__",
+          "__delattr__",
+          "__dir__",
+          "__getattr__",
+          "__getstate__",
+          "__init__",
+          "__repr__",
+          "__setattr__",
+          "__setstate__",
+          "_apply",
+          "_build_concept_predictor",
+          "_build_feature_extractor",
+          "_build_task_predictor",
+          "_call_impl",
+          "_extract_features",
+          "_get_backward_hooks",
+          "_get_backward_pre_hooks",
+          "_get_name",
+          "_load_from_state_dict",
+          "_maybe_warn_non_full_backward_hook",
+          "_named_members",
+          "_register_load_state_dict_pre_hook",
+          "_register_state_dict_hook",
+          "_replicate_for_data_parallel",
+          "_save_to_state_dict",
+          "_slow_forward",
+          "_wrapped_call_impl",
+          "add_module",
+          "apply",
+          "bfloat16",
+          "buffers",
+          "children",
+          "compile",
+          "compute_loss",
+          "cpu",
+          "cuda",
+          "double",
+          "eval",
+          "extra_repr",
+          "float",
+          "forward",
+          "freeze_feature_extractor",
+          "get_buffer",
+          "get_extra_state",
+          "get_parameter",
+          "get_submodule",
+          "half",
+          "ipu",
+          "load_state_dict",
+          "modules",
+          "named_buffers",
+          "named_children",
+          "named_modules",
+          "named_parameters",
+          "parameters",
+          "predict_concepts",
+          "predict_task_from_concepts",
+          "register_backward_hook",
+          "register_buffer",
+          "register_forward_hook",
+          "register_forward_pre_hook",
+          "register_full_backward_hook",
+          "register_full_backward_pre_hook",
+          "register_load_state_dict_post_hook",
+          "register_module",
+          "register_parameter",
+          "register_state_dict_pre_hook",
+          "requires_grad_",
+          "set_extra_state",
+          "share_memory",
+          "state_dict",
+          "to",
+          "to_empty",
+          "train",
+          "type",
+          "unfreeze_feature_extractor",
+          "xpu",
+          "zero_grad"
+        ],
+        "properties": [],
+        "init_signature": "(self, num_concepts=40, num_classes=2, pretrained=True)",
+        "inherits_from": "BaseCBM"
+      },
+      "SimpleCBM": {
+        "class": "<class 'cbm_model.SimpleCBM'>",
+        "type": "concrete_implementation",
+        "module": "cbm_model",
+        "docstring": "\n    A simpler CBM variant with smaller networks for faster training\n\n    Architecture:\n    Input Image \u2192 Simple CNN \u2192 Concepts \u2192 Task Prediction\n    ",
+        "base_classes": [
+          "BaseCBM"
+        ],
+        "methods": [
+          "__call__",
+          "__delattr__",
+          "__dir__",
+          "__getattr__",
+          "__getstate__",
+          "__init__",
+          "__repr__",
+          "__setattr__",
+          "__setstate__",
+          "_apply",
+          "_build_concept_predictor",
+          "_build_feature_extractor",
+          "_build_task_predictor",
+          "_call_impl",
+          "_extract_features",
+          "_get_backward_hooks",
+          "_get_backward_pre_hooks",
+          "_get_name",
+          "_load_from_state_dict",
+          "_maybe_warn_non_full_backward_hook",
+          "_named_members",
+          "_register_load_state_dict_pre_hook",
+          "_register_state_dict_hook",
+          "_replicate_for_data_parallel",
+          "_save_to_state_dict",
+          "_slow_forward",
+          "_wrapped_call_impl",
+          "add_module",
+          "apply",
+          "bfloat16",
+          "buffers",
+          "children",
+          "compile",
+          "compute_loss",
+          "cpu",
+          "cuda",
+          "double",
+          "eval",
+          "extra_repr",
+          "float",
+          "forward",
+          "freeze_feature_extractor",
+          "get_buffer",
+          "get_extra_state",
+          "get_parameter",
+          "get_submodule",
+          "half",
+          "ipu",
+          "load_state_dict",
+          "modules",
+          "named_buffers",
+          "named_children",
+          "named_modules",
+          "named_parameters",
+          "parameters",
+          "predict_concepts",
+          "predict_task_from_concepts",
+          "register_backward_hook",
+          "register_buffer",
+          "register_forward_hook",
+          "register_forward_pre_hook",
+          "register_full_backward_hook",
+          "register_full_backward_pre_hook",
+          "register_load_state_dict_post_hook",
+          "register_module",
+          "register_parameter",
+          "register_state_dict_pre_hook",
+          "requires_grad_",
+          "set_extra_state",
+          "share_memory",
+          "state_dict",
+          "to",
+          "to_empty",
+          "train",
+          "type",
+          "unfreeze_feature_extractor",
+          "xpu",
+          "zero_grad"
+        ],
+        "properties": [],
+        "init_signature": "(self, num_concepts=20, num_classes=2, input_channels=3)",
+        "inherits_from": "BaseCBM"
+      }
+    },
+    "utility_functions": {
+      "abstractmethod": {
+        "function": "<function abstractmethod at 0x7c985cfee700>",
+        "module": "abc",
+        "signature": "(funcobj)",
+        "docstring": "A decorator indicating abstract methods.\n\n    Requires that the metaclass is ABCMeta or derived from it.  A\n    class that has a metaclass derived from ABCMeta cannot be\n    instantiated unless all of its abstract methods are overridden.\n    The abstract methods can be called using any of the normal\n    'super' call mechanisms.  abstractmethod() may be used to declare\n    abstract methods for properties and descriptors.\n\n    Usage:\n\n        class C(metaclass=ABCMeta):\n            @abstractmethod\n            def my_abstract_method(self, arg1, arg2, argN):\n                ...\n    "
+      },
+      "test_models": {
+        "function": "<function test_models at 0x7c975b1a45e0>",
+        "module": "cbm_model",
+        "signature": "()",
+        "docstring": "Test both CBM implementations."
+      }
+    },
+    "constants": {
+      "ABC": {
+        "value": "<class 'abc.ABC'>",
+        "type": "ABCMeta"
+      },
+      "F": {
+        "value": "<module 'torch.nn.functional' from '/home/tanmoy/miniconda3/envs/torch-multimodal/lib/python3.12/site-packages/torch/nn/functional.py'>",
+        "type": "module"
+      }
+    }
+  },
+  "validation_results": {
+    "inheritance_checks": {
+      "BaselineCBM": {
+        "is_subclass_of_base": true,
+        "base_classes": [
+          "BaseCBM"
+        ]
+      },
+      "SimpleCBM": {
+        "is_subclass_of_base": true,
+        "base_classes": [
+          "BaseCBM"
+        ]
+      }
+    },
+    "method_implementation_checks": {
+      "BaselineCBM": {
+        "total_methods": 78,
+        "required_abstract_methods": 3,
+        "implemented_required_methods": 3,
+        "missing_required_methods": [],
+        "compliance_percentage": 100.0
+      },
+      "SimpleCBM": {
+        "total_methods": 78,
+        "required_abstract_methods": 3,
+        "implemented_required_methods": 3,
+        "missing_required_methods": [],
+        "compliance_percentage": 100.0
+      }
+    },
+    "abstract_method_compliance": {
+      "BaselineCBM": {
+        "fully_compliant": true,
+        "missing_count": 0,
+        "missing_methods": []
+      },
+      "SimpleCBM": {
+        "fully_compliant": true,
+        "missing_count": 0,
+        "missing_methods": []
+      }
+    }
+  },
+  "test_results": {
+    "instantiation_tests": {
+      "BaselineCBM": {
+        "success": true,
+        "instance_type": "BaselineCBM",
+        "module": "cbm_model"
+      },
+      "SimpleCBM": {
+        "success": true,
+        "instance_type": "SimpleCBM",
+        "module": "cbm_model"
+      }
+    },
+    "forward_pass_tests": {
+      "BaselineCBM": {
+        "success": true,
+        "output_keys": [
+          "concepts",
+          "task_logits",
+          "task_predictions"
+        ],
+        "output_shapes": {
+          "concepts": [
+            2,
+            10
+          ],
+          "task_logits": [
+            2,
+            2
+          ],
+          "task_predictions": [
+            2,
+            2
+          ]
+        }
+      },
+      "SimpleCBM": {
+        "success": true,
+        "output_keys": [
+          "concepts",
+          "task_logits",
+          "task_predictions"
+        ],
+        "output_shapes": {
+          "concepts": [
+            2,
+            10
+          ],
+          "task_logits": [
+            2,
+            2
+          ],
+          "task_predictions": [
+            2,
+            2
+          ]
+        }
+      }
+    },
+    "method_access_tests": {
+      "BaselineCBM": {
+        "success": true,
+        "accessible_methods": [
+          "forward",
+          "compute_loss",
+          "predict_concepts",
+          "predict_task_from_concepts"
+        ],
+        "total_required": 4,
+        "accessibility_percentage": 100.0
+      },
+      "SimpleCBM": {
+        "success": true,
+        "accessible_methods": [
+          "forward",
+          "compute_loss",
+          "predict_concepts",
+          "predict_task_from_concepts"
+        ],
+        "total_required": 4,
+        "accessibility_percentage": 100.0
+      }
+    }
+  },
+  "documentation": {
+    "summary": {
+      "total_base_classes": 1,
+      "total_implemented_classes": 2,
+      "total_utility_functions": 2,
+      "total_constants": 2,
+      "framework_name": "CBM (Concept Bottleneck Model) Framework",
+      "framework_version": "1.0.0"
+    },
+    "base_classes": {
+      "BaseCBM": {
+        "description": "\n    Abstract base class for Concept Bottleneck Models.\n\n    This class defines the common interface and basic functionality that all CBM\n    implementations should follow. Subclasses need to implement the specific\n    architecture details.\n    ",
+        "type": "abstract_base",
+        "abstract_methods": [
+          "_build_task_predictor",
+          "_build_feature_extractor",
+          "_build_concept_predictor"
+        ],
+        "purpose": "Abstract base class defining interface for CBM models",
+        "methods_count": 78,
+        "properties_count": 0
+      }
+    },
+    "implemented_classes": {
+      "BaselineCBM": {
+        "description": "\n    Simplest possible CBM implementation\n\n    Architecture:\n    Input Image \u2192 ResNet-18 \u2192 Concepts \u2192 Task Prediction\n    ",
+        "type": "concrete_implementation",
+        "inherits_from": "BaseCBM",
+        "base_classes": [
+          "BaseCBM"
+        ],
+        "methods_count": 78,
+        "properties_count": 0,
+        "init_signature": "(self, num_concepts=40, num_classes=2, pretrained=True)",
+        "can_instantiate": true,
+        "can_forward_pass": true,
+        "method_compliance": 100.0
+      },
+      "SimpleCBM": {
+        "description": "\n    A simpler CBM variant with smaller networks for faster training\n\n    Architecture:\n    Input Image \u2192 Simple CNN \u2192 Concepts \u2192 Task Prediction\n    ",
+        "type": "concrete_implementation",
+        "inherits_from": "BaseCBM",
+        "base_classes": [
+          "BaseCBM"
+        ],
+        "methods_count": 78,
+        "properties_count": 0,
+        "init_signature": "(self, num_concepts=20, num_classes=2, input_channels=3)",
+        "can_instantiate": true,
+        "can_forward_pass": true,
+        "method_compliance": 100.0
+      }
+    },
+    "validation_summary": {
+      "inheritance_valid": true,
+      "all_classes_compliant": true,
+      "total_compliance_checks": 2,
+      "passed_compliance_checks": 2
+    },
+    "test_summary": {
+      "all_classes_instantiable": true,
+      "all_classes_forward_pass": true,
+      "all_methods_accessible": true,
+      "total_instantiation_tests": 2,
+      "passed_instantiation_tests": 2
+    }
+  }
+}
