@@ -63,13 +63,13 @@ try:
         download=True
     )
 
-    print(f"✅ torchvision CelebA loaded successfully")
-    print(f"✅ Train: {len(train_dataset)} samples")
-    print(f"✅ Val: {len(val_dataset)} samples")
+    print(f"torchvision CelebA loaded successfully")
+    print(f"Train: {len(train_dataset)} samples")
+    print(f"Val: {len(val_dataset)} samples")
     dataset_loaded = True
 
 except Exception as e:
-    print(f"❌ torchvision CelebA failed: {e}")
+    print(f"torchvision CelebA failed: {e}")
 
 # Method 2: Try custom CelebA wrapper if torchvision fails
 if not dataset_loaded:
@@ -81,13 +81,13 @@ if not dataset_loaded:
         train_dataset = CelebAWrapper(split='train', size=64)
         val_dataset = CelebAWrapper(split='valid', size=64)
 
-        print(f"✅ Custom CelebA wrapper loaded successfully")
-        print(f"✅ Train: {len(train_dataset)} samples")
-        print(f"✅ Val: {len(val_dataset)} samples")
+        print(f"Custom CelebA wrapper loaded successfully")
+        print(f"Train: {len(train_dataset)} samples")
+        print(f"Val: {len(val_dataset)} samples")
         dataset_loaded = True
 
     except Exception as e:
-        print(f"❌ Custom CelebA wrapper failed: {e}")
+        print(f"Custom CelebA wrapper failed: {e}")
 
 # Method 3: Try using existing data directory structure
 if not dataset_loaded:
@@ -104,18 +104,18 @@ if not dataset_loaded:
                 transform=transform
             )
 
-            print(f"✅ Local ImageFolder loaded successfully")
-            print(f"✅ Train: {len(train_dataset)} samples")
-            print(f"✅ Val: {len(val_dataset)} samples")
+            print(f"Local ImageFolder loaded successfully")
+            print(f"Train: {len(train_dataset)} samples")
+            print(f"Val: {len(val_dataset)} samples")
             dataset_loaded = True
         else:
-            print("❌ Local data directory not found")
+            print("Local data directory not found")
 
     except Exception as e:
-        print(f"❌ Local data loading failed: {e}")
+        print(f"Local data loading failed: {e}")
 
 if not dataset_loaded:
-    print("\n❌ ERROR: Could not load CelebA dataset with any method!")
+    print("\nERROR: Could not load CelebA dataset with any method!")
     print("\nTo set up CelebA dataset:")
     print("1. Run: python setup_celeba.py")
     print("2. Or download manually from: https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html")
@@ -251,7 +251,7 @@ for epoch in range(NUM_EPOCHS):
             'optimizer_state_dict': optimizer.state_dict(),
             'val_acc': val_acc,
         }, f'outputs/baseline_cbm_epoch{epoch+1}.pth')
-        print(f"  💾 Checkpoint saved")
+        print(f"  Checkpoint saved")
 
 # Training complete
 print("\n" + "="*60)
@@ -279,24 +279,24 @@ ax2.grid(True)
 
 plt.tight_layout()
 plt.savefig('outputs/step1_training_curves.png', dpi=150)
-print("📈 Saved training curves to outputs/step1_training_curves.png")
+print("Saved training curves to outputs/step1_training_curves.png")
 
 # Final results
-print(f"\n📊 Final Results:")
+print(f"\nFinal Results:")
 print(f"   Training Accuracy:   {history['train_acc'][-1]:.2f}%")
 print(f"   Validation Accuracy: {history['val_acc'][-1]:.2f}%")
 
 if history['val_acc'][-1] > 75:
-    print("\n🎉 SUCCESS! Validation accuracy > 75%")
-    print("   ✅ Step 1 complete! Ready for Step 2.")
+    print("\nSUCCESS! Validation accuracy > 75%")
+    print("   Step 1 complete! Ready for Step 2.")
 else:
-    print(f"\n⚠️  Validation accuracy below 75%")
+    print(f"\nValidation accuracy below 75%")
     print("   Consider training for more epochs or adjusting hyperparameters")
 
 print("\n" + "="*60)
 
 # Additional: Test concept predictions
-print("\n🧪 Testing concept predictions...")
+print("\nTesting concept predictions...")
 model.eval()
 with torch.no_grad():
     # Get a small batch
@@ -306,11 +306,11 @@ with torch.no_grad():
 
     # Get concept predictions
     concepts = model.predict_concepts(sample_images)
-    print(f"✅ Concept predictions shape: {concepts.shape}")
-    print(f"✅ Sample concept values: {concepts[0][:5]}")
+    print(f"Concept predictions shape: {concepts.shape}")
+    print(f"Sample concept values: {concepts[0][:5]}")
 
     # Test task from concepts
     task_from_concepts = model.predict_task_from_concepts(concepts)
-    print(f"✅ Task from concepts shape: {task_from_concepts['task_logits'].shape}")
+    print(f"Task from concepts shape: {task_from_concepts['task_logits'].shape}")
 
-print("\n✅ All tests completed successfully!")
+print("\nAll tests completed successfully!")

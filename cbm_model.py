@@ -145,14 +145,14 @@ class BaseCBM(nn.Module, ABC):
         if self.feature_extractor:
             for param in self.feature_extractor.parameters():
                 param.requires_grad = False
-            print("✅ Feature extractor frozen")
+            print("Feature extractor frozen")
 
     def unfreeze_feature_extractor(self):
         """Unfreeze the feature extractor parameters."""
         if self.feature_extractor:
             for param in self.feature_extractor.parameters():
                 param.requires_grad = True
-            print("✅ Feature extractor unfrozen")
+            print("Feature extractor unfrozen")
 
 
 class BaselineCBM(BaseCBM):
@@ -171,7 +171,7 @@ class BaselineCBM(BaseCBM):
         self._build_concept_predictor()
         self._build_task_predictor()
 
-        print(f"✅ Baseline CBM initialized: {num_concepts} concepts → {num_classes} classes")
+        print(f"Baseline CBM initialized: {num_concepts} concepts → {num_classes} classes")
 
     def _build_feature_extractor(self, pretrained=True):
         """Build frozen pretrained ResNet-18 feature extractor."""
@@ -217,7 +217,7 @@ class SimpleCBM(BaseCBM):
         self._build_concept_predictor()
         self._build_task_predictor()
 
-        print(f"✅ Simple CBM initialized: {num_concepts} concepts → {num_classes} classes")
+        print(f"Simple CBM initialized: {num_concepts} concepts → {num_classes} classes")
 
     def _build_feature_extractor(self):
         """Build a simple CNN feature extractor."""
@@ -263,7 +263,7 @@ class SimpleCBM(BaseCBM):
 
 def test_models():
     """Test both CBM implementations."""
-    print("🧪 Testing CBM implementations...")
+    print("Testing CBM implementations...")
 
     # Test data
     batch_size = 4
@@ -272,35 +272,35 @@ def test_models():
     concept_labels = torch.rand(batch_size, 40)
 
     # Test BaselineCBM
-    print("\n📋 Testing BaselineCBM:")
+    print("\nTesting BaselineCBM:")
     baseline_model = BaselineCBM(num_concepts=40, num_classes=2)
 
     baseline_output = baseline_model(dummy_images)
-    print(f"✅ Forward pass: concepts {baseline_output['concepts'].shape}, logits {baseline_output['task_logits'].shape}")
+    print(f"Forward pass: concepts {baseline_output['concepts'].shape}, logits {baseline_output['task_logits'].shape}")
 
     baseline_losses = baseline_model.compute_loss(dummy_images, task_labels, concept_labels)
-    print(f"✅ Loss: {baseline_losses['total_loss'].item():.4f}")
+    print(f"Loss: {baseline_losses['total_loss'].item():.4f}")
 
     # Test SimpleCBM
-    print("\n📋 Testing SimpleCBM:")
+    print("\nTesting SimpleCBM:")
     simple_model = SimpleCBM(num_concepts=20, num_classes=2)
 
     simple_output = simple_model(dummy_images)
-    print(f"✅ Forward pass: concepts {simple_output['concepts'].shape}, logits {simple_output['task_logits'].shape}")
+    print(f"Forward pass: concepts {simple_output['concepts'].shape}, logits {simple_output['task_logits'].shape}")
 
     simple_losses = simple_model.compute_loss(dummy_images, task_labels)
-    print(f"✅ Loss: {simple_losses['total_loss'].item():.4f}")
+    print(f"Loss: {simple_losses['total_loss'].item():.4f}")
 
     # Test concept-only prediction
-    print("\n📋 Testing concept-only prediction:")
+    print("\nTesting concept-only prediction:")
     concepts = baseline_model.predict_concepts(dummy_images)
-    print(f"✅ Concepts shape: {concepts.shape}")
+    print(f"Concepts shape: {concepts.shape}")
 
     # Test task from concepts
     task_from_concepts = baseline_model.predict_task_from_concepts(concepts)
-    print(f"✅ Task from concepts shape: {task_from_concepts['task_logits'].shape}")
+    print(f"Task from concepts shape: {task_from_concepts['task_logits'].shape}")
 
-    print("\n✅ All tests passed!")
+    print("\nAll tests passed!")
 
 
 if __name__ == "__main__":
