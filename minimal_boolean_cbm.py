@@ -49,7 +49,6 @@ class LearnedThresholds(nn.Module):
     def freeze(self):
         self._frozen = True
         self.thresholds.requires_grad_(False)
-        print(f"Thresholds frozen: {self.thresholds.cpu().data.numpy().round(3)}")
 
     def forward(self, concept_probs: torch.Tensor) -> torch.Tensor:
         """
@@ -102,20 +101,17 @@ class ConstraintLayer(nn.Module):
         """A → B"""
         if a in self.name_to_idx and b in self.name_to_idx:
             self.implies.append((self.name_to_idx[a], self.name_to_idx[b]))
-            print(f"  Added: {a} → {b}")
 
     def add_mutex(self, a: str, b: str):
         """¬(A ∧ B)"""
         if a in self.name_to_idx and b in self.name_to_idx:
             self.mutex.append((self.name_to_idx[a], self.name_to_idx[b]))
-            print(f"  Added: ¬({a} ∧ {b})")
 
     def add_atleast_one(self, concepts: List[str]):
         """A ∨ B ∨ C ..."""
         indices = [self.name_to_idx[c] for c in concepts if c in self.name_to_idx]
         if indices:
             self.atleast_one.append(indices)
-            print(f"  Added: atleast_one({concepts})")
 
     def violation_loss(self, concepts: torch.Tensor) -> torch.Tensor:
         """
@@ -431,19 +427,10 @@ def train_loop(
         val_violation = np.mean(val_constraint_violations)
         history['val'].append({'acc': val_acc, 'constraint_violation': val_violation})
 
-        # === LOGGING ===
-        if (epoch + 1) % 10 == 0 or epoch == 0:
-            print(f"Epoch {epoch+1}/{num_epochs}")
-            print(f"  Train - Loss: {avg_train['loss']:.4f}, Task Acc: {avg_train['task_acc']:.3f}, Concept Acc: {avg_train['concept_acc']:.3f}")
-            print(f"  Val   - Acc: {val_acc:.3f}, Constraint Violation: {val_violation:.4f}")
-            print(f"  Thresholds: {model.thresholds.thresholds.cpu().data.numpy().round(3)}")
-
         # === SAVE BEST ===
         if val_acc > best_val_acc:
             best_val_acc = val_acc
             best_state = model.state_dict()
-
-    print(f"\nBest Val Acc: {best_val_acc:.3f}")
 
     # Freeze thresholds for inference
     model.freeze_thresholds()
@@ -520,7 +507,6 @@ class CausalDiscovery:
 
         for c in discovered:
             if require_confirmation:
-                print(f"Discovered: {c}")
                 confirm = input("Add? (y/n): ").strip().lower()
                 if confirm != 'y':
                     continue
@@ -555,76 +541,30 @@ def create_simple_encoder(input_channels: int, num_concepts: int) -> nn.Module:
 def demo():
     """Demo the minimal Boolean CBM."""
 
-    print("="*60)
-    print("MINIMAL BOOLEAN CBM DEMO")
-    print("="*60)
-
-    # Setup
     concept_names = ['opacity', 'cardiomegaly', 'effusion', 'pneumothorax', 'nodule']
     num_concepts = len(concept_names)
     num_classes = 2
 
-    # Create model
     encoder = create_simple_encoder(3, num_concepts)
     model = SimpleBooleanCBM(concept_names, num_classes, encoder)
 
-    # Add manual constraints (v2: will be discovered)
-    print("\nAdding constraints:")
-    model.constraints.add_mutex('pneumothorax', 'effusion')  # Can't have both
-    model.constraints.add_implies('cardiomegaly', 'opacity')  # Heart issues → opacity
-    model.constraints.add_atleast_one(['opacity', 'nodule', 'effusion'])  # At least one finding
+    model.constraints.add_mutex('pneumothorax', 'effusion')
+    model.constraints.add_implies('cardiomegaly', 'opacity')
+    model.constraints.add_atleast_one(['opacity', 'nodule', 'effusion'])
 
-    print(f"\nTotal constraints: {model.constraints.num_constraints()}")
-
-    # Fake data
-    print("\nSimulating training step...")
     images = torch.randn(8, 3, 64, 64)
     task_labels = torch.randint(0, 2, (8,))
     concept_labels = torch.randint(0, 2, (8, num_concepts))
 
-    # Train step
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
     config = TrainConfig()
 
-    metrics = train_step(model, optimizer, images, task_labels, concept_labels, config)
-    print(f"  Loss: {metrics['loss']:.4f}")
-    print(f"  Task Acc: {metrics['task_acc']:.3f}")
-    print(f"  Concept Acc: {metrics['concept_acc']:.3f}")
-    print(f"  Constraint Violation: {metrics['constraint_loss']:.4f}")
+    train_step(model, optimizer, images, task_labels, concept_labels, config)
 
-    # Inference step
-    print("\nSimulating inference...")
     model.freeze_thresholds()
 
     test_image = torch.randn(1, 3, 64, 64)
-    result = inference_step(model, test_image)
-
-    print(f"  Prediction: {result['predictions'].item()}")
-    print(f"  Confidence: {result['confidences'].item():.3f}")
-    print(f"  Binary concepts: {result['binary_concepts'][0].numpy()}")
-
-    # Explanation
-    explanation = explain_prediction(model, result['binary_concepts'], result['predictions'].item())
-    print(f"\n{explanation}")
-
-    # Causal discovery demo
-    print("\n" + "="*60)
-    print("CAUSAL DISCOVERY (Preview)")
-    print("="*60)
-
-    # Fake concept data
-    fake_concept_data = torch.rand(100, num_concepts)
-    # Inject correlation: when opacity high, cardiomegaly tends high
-    fake_concept_data[:, 1] = 0.7 * fake_concept_data[:, 0] + 0.3 * torch.rand(100)
-
-    discovered = CausalDiscovery.discover_from_data(fake_concept_data, concept_names, threshold=0.5)
-    print(f"\nDiscovered {len(discovered)} potential constraints:")
-    for c in discovered:
-        print(f"  {c['type']}: {c['a']} ↔ {c['b']} (corr: {c['correlation']:.3f})")
-
-    print("\n" + "="*60)
-    print("DEMO COMPLETE")
-    print("="*60)
+    inference_step(model, test_image)
 
     return model
 

@@ -78,11 +78,6 @@ class CelebACBMDataset(Dataset):
             raise ValueError(f"Task attribute '{task_attribute}' not found in CelebA attributes")
         self.task_index = self.all_attributes.index(task_attribute)
 
-        print(f"CelebA CBM Dataset ({split}):")
-        print(f"  Task attribute: {task_attribute} (index {self.task_index})")
-        print(f"  Concept attributes ({self.num_concepts}): {self.concept_attributes}")
-        print(f"  Total samples: {len(self.celeba)}")
-
     def __len__(self):
         return len(self.celeba)
 
@@ -259,19 +254,10 @@ def get_celeba_loaders(
 def test_celeba_cbm_dataset():
     """Test the CelebA CBM dataset adapter."""
 
-    print("="*60)
-    print("TESTING CELEBA CBM DATASET ADAPTER")
-    print("="*60)
-
-    # Test all concept sets
     concept_sets = create_celeba_concept_sets()
 
     for concept_set_name, config in concept_sets.items():
-        print(f"\n--- Testing {concept_set_name} ---")
-        print(f"Description: {config['description']}")
-
         try:
-            # Create dataset
             dataset = CelebACBMDataset(
                 split='train',
                 size=64,
@@ -279,21 +265,11 @@ def test_celeba_cbm_dataset():
                 concept_attributes=config['concept_attributes']
             )
 
-            print(f"Dataset created: {len(dataset)} samples")
-            print(f"Task: {config['task_attribute']}")
-            print(f"Concepts ({len(config['concept_attributes'])}): {config['concept_attributes'][:3]}...")
-
-            # Test a sample
             image, task_label, concept_labels = dataset[0]
-            print(f"Sample shapes: image={image.shape}, task={task_label.shape}, concepts={concept_labels.shape}")
-            print(f"Sample values: task={task_label.item()}, concepts_sum={concept_labels.sum().item()}")
 
         except Exception as e:
-            print(f"Error with {concept_set_name}: {e}")
             return False
 
-    # Test DataLoader creation
-    print(f"\n--- Testing DataLoader ---")
     try:
         train_loader, val_loader, cbm_config = get_celeba_loaders(
             concept_set='appearance',
@@ -302,29 +278,16 @@ def test_celeba_cbm_dataset():
             val_size=20
         )
 
-        print(f"DataLoaders created")
-        print(f"Train batches: {len(train_loader)}")
-        print(f"Val batches: {len(val_loader)}")
-        print(f"CBM Config: {cbm_config}")
-
-        # Test batch loading with try-catch
         try:
             for batch_idx, (images, task_labels, concept_labels) in enumerate(train_loader):
-                print(f"Batch {batch_idx}: images={images.shape}, tasks={task_labels.shape}, concepts={concept_labels.shape}")
-                if batch_idx >= 1:  # Just test first couple batches
+                if batch_idx >= 1:
                     break
-        except Exception as e:
-            print(f"DataLoader iteration issue: {e}")
-            # This is expected with HuggingFace datasets, test manual batch creation instead
-            print("DataLoader created successfully (batch iteration issue is expected with Hugging Face datasets)")
+        except Exception:
+            pass
 
-    except Exception as e:
-        print(f"DataLoader error: {e}")
+    except Exception:
         return False
 
-    print("\n" + "="*60)
-    print("ALL TESTS PASSED! CelebA CBM dataset adapter is working.")
-    print("="*60)
     return True
 
 
