@@ -23,8 +23,6 @@ NUM_EPOCHS = 10
 TASK_ATTR_IDX = 36  # Wearing_Lipstick
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-print(f"Using device: {DEVICE}")
-
 # Create output directory
 os.makedirs('outputs', exist_ok=True)
 
@@ -36,7 +34,6 @@ transform = transforms.Compose([
     transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
 ])
 
-print("Loading CelebA dataset...")
 train_dataset = datasets.CelebA(
     root='./data',
     split='train',
@@ -56,23 +53,15 @@ val_dataset = datasets.CelebA(
 train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
 val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=4)
 
-print(f"Train samples: {len(train_dataset)}")
-print(f"Val samples: {len(val_dataset)}")
-
 # Check class distribution
-print("\nChecking class distribution...")
 all_labels = []
 for i in range(min(5000, len(val_dataset))):  # Sample first 5000
     _, attrs = val_dataset[i]
     all_labels.append(attrs[TASK_ATTR_IDX].item())
 
 positive_ratio = sum(all_labels) / len(all_labels)
-print(f"Class 0 (No lipstick): {(1-positive_ratio)*100:.1f}%")
-print(f"Class 1 (Has lipstick): {positive_ratio*100:.1f}%")
-print(f"Majority baseline: {max(positive_ratio, 1-positive_ratio)*100:.1f}%")
 
 # Initialize model
-print("\nInitializing model...")
 model = BaselineCBM(num_concepts=40, num_classes=2).to(DEVICE)
 
 # Loss and optimizer
@@ -128,7 +117,6 @@ def compute_metrics(all_preds, all_labels):
     }
 
 # Training loop
-print("\nStarting training...")
 best_balanced_acc = 0
 
 for epoch in range(NUM_EPOCHS):
@@ -190,15 +178,6 @@ for epoch in range(NUM_EPOCHS):
     history['val_class0_acc'].append(metrics['class0_acc'])
     history['val_class1_acc'].append(metrics['class1_acc'])
 
-    # Print metrics
-    print(f"\nEpoch {epoch+1}/{NUM_EPOCHS}:")
-    print(f"  Train Loss:        {avg_train_loss:.4f}")
-    print(f"  Val Accuracy:      {metrics['accuracy']:.1f}%")
-    print(f"  Val Balanced Acc:  {metrics['balanced_accuracy']:.1f}%")
-    print(f"  Val F1 Score:      {metrics['f1']:.3f}")
-    print(f"  Class 0 Accuracy:  {metrics['class0_acc']:.1f}%")
-    print(f"  Class 1 Accuracy:  {metrics['class1_acc']:.1f}%")
-
     # Learning rate scheduling based on balanced accuracy
     scheduler.step(metrics['balanced_accuracy'])
 
@@ -211,7 +190,6 @@ for epoch in range(NUM_EPOCHS):
             'optimizer_state_dict': optimizer.state_dict(),
             'balanced_accuracy': metrics['balanced_accuracy'],
         }, 'outputs/best_baseline_cbm_improved.pth')
-        print(f"  Saved new best model (Balanced Acc: {best_balanced_acc:.1f}%)")
 
     # Save checkpoint every 5 epochs
     if (epoch + 1) % 5 == 0:
@@ -221,11 +199,6 @@ for epoch in range(NUM_EPOCHS):
             'optimizer_state_dict': optimizer.state_dict(),
             'metrics': metrics,
         }, f'outputs/baseline_cbm_improved_epoch{epoch+1}.pth')
-
-print(f"\n{'='*60}")
-print("TRAINING COMPLETE!")
-print(f"{'='*60}")
-print(f"Best Balanced Accuracy: {best_balanced_acc:.1f}%")
 
 # Plot training curves
 fig, axes = plt.subplots(2, 2, figsize=(12, 10))
@@ -268,39 +241,13 @@ axes[1, 1].grid(True)
 
 plt.tight_layout()
 plt.savefig('outputs/step1_training_curves_improved.png', dpi=300, bbox_inches='tight')
-print(f"\nTraining curves saved to: outputs/step1_training_curves_improved.png")
 
 # Final evaluation
-print(f"\n{'='*60}")
-print("FINAL EVALUATION")
-print(f"{'='*60}")
-
 final_metrics = compute_metrics(all_preds, all_labels)
-
-print(f"\nOverall Performance:")
-print(f"   Accuracy:          {final_metrics['accuracy']:.1f}%")
-print(f"   Balanced Accuracy: {final_metrics['balanced_accuracy']:.1f}%")
-print(f"   F1 Score:          {final_metrics['f1']:.3f}")
-
-print(f"\nPer-Class Performance:")
-print(f"   Class 0 Accuracy:  {final_metrics['class0_acc']:.1f}%")
-print(f"   Class 1 Accuracy:  {final_metrics['class1_acc']:.1f}%")
-
-print(f"\nDetailed Metrics:")
-print(f"   Precision:         {final_metrics['precision']:.3f}")
-print(f"   Recall:            {final_metrics['recall']:.3f}")
 
 # Success criteria
 majority_baseline = max(positive_ratio, 1-positive_ratio) * 100
 improvement = final_metrics['balanced_accuracy'] - majority_baseline
-
-print(f"\n{'='*60}")
-print("SUCCESS CRITERIA CHECK")
-print(f"{'='*60}")
-
-print(f"\nMajority Baseline:        {majority_baseline:.1f}%")
-print(f"Your Balanced Accuracy:   {final_metrics['balanced_accuracy']:.1f}%")
-print(f"Improvement:              +{improvement:.1f}%")
 
 success_criteria = [
     (final_metrics['balanced_accuracy'] > 70, "Balanced Accuracy > 70%"),
@@ -312,39 +259,15 @@ success_criteria = [
 
 all_passed = True
 for passed, criterion in success_criteria:
-    status = "PASS" if passed else "FAIL"
-    print(f"{status}: {criterion}")
     if not passed:
         all_passed = False
 
-if all_passed:
-    print(f"\nALL CRITERIA PASSED! Model is learning well.")
-    print(f"Ready to proceed to Step 2 (Multi-environment splitting)")
-else:
-    print(f"\nSome criteria not met. Consider:")
-    print(f"   - Training for more epochs (15-20)")
-    print(f"   - Using class weights in loss function")
-    print(f"   - Data augmentation")
-    print(f"   - Adjusting learning rate")
-
-print(f"\n{'='*60}")
-
 # Additional: Test concept predictions
-print("\nTesting concept predictions...")
 model.eval()
 with torch.no_grad():
-    # Get a small batch
     sample_images, sample_attrs = next(iter(val_loader))
     sample_images = sample_images[:4].to(DEVICE)
     sample_attrs = sample_attrs[:4].to(DEVICE)
 
-    # Get concept predictions
     concepts = model.predict_concepts(sample_images)
-    print(f"Concept predictions shape: {concepts.shape}")
-    print(f"Sample concept values: {concepts[0][:5]}")
-
-    # Test task from concepts
     task_from_concepts = model.predict_task_from_concepts(concepts)
-    print(f"Task from concepts shape: {task_from_concepts['task_logits'].shape}")
-
-print("\nAll tests completed successfully!")
