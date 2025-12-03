@@ -1,8 +1,3 @@
-"""
-Training Script for Baseline CBM - Step 1
-Simple training loop for CelebA using the new CBM framework
-"""
-
 import torch
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
@@ -21,15 +16,6 @@ NUM_EPOCHS = 10
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 TASK_ATTR_IDX = 36  # Wearing_Lipstick
 
-print("="*60)
-print("STEP 1: Training Baseline CBM with New Framework")
-print("="*60)
-print(f"Device: {DEVICE}")
-print(f"Task: Wearing_Lipstick (attribute {TASK_ATTR_IDX})")
-print(f"Batch size: {BATCH_SIZE}")
-print(f"Learning rate: {LEARNING_RATE}")
-print(f"Epochs: {NUM_EPOCHS}")
-
 # Data transforms
 transform = transforms.Compose([
     transforms.Resize(64),
@@ -39,14 +25,12 @@ transform = transforms.Compose([
 ])
 
 # Try different dataset loading approaches
-print("\nLoading CelebA dataset...")
 dataset_loaded = False
 train_dataset = None
 val_dataset = None
 
 # Method 1: Try standard torchvision CelebA
 try:
-    print("Trying torchvision CelebA...")
     train_dataset = datasets.CelebA(
         root='./data',
         split='train',
@@ -63,36 +47,28 @@ try:
         download=True
     )
 
-    print(f"torchvision CelebA loaded successfully")
-    print(f"Train: {len(train_dataset)} samples")
-    print(f"Val: {len(val_dataset)} samples")
     dataset_loaded = True
 
 except Exception as e:
-    print(f"torchvision CelebA failed: {e}")
+    pass
 
 # Method 2: Try custom CelebA wrapper if torchvision fails
 if not dataset_loaded:
     try:
-        print("Trying custom CelebA wrapper...")
         sys.path.append(os.path.dirname(os.path.abspath(__file__)))
         from disentangled_vae import CelebAWrapper
 
         train_dataset = CelebAWrapper(split='train', size=64)
         val_dataset = CelebAWrapper(split='valid', size=64)
 
-        print(f"Custom CelebA wrapper loaded successfully")
-        print(f"Train: {len(train_dataset)} samples")
-        print(f"Val: {len(val_dataset)} samples")
         dataset_loaded = True
 
     except Exception as e:
-        print(f"Custom CelebA wrapper failed: {e}")
+        pass
 
 # Method 3: Try using existing data directory structure
 if not dataset_loaded:
     try:
-        print("Trying local CelebA data...")
         # Check if we have the data directory structure
         if os.path.exists('./data/celeba'):
             train_dataset = datasets.ImageFolder(
@@ -104,26 +80,15 @@ if not dataset_loaded:
                 transform=transform
             )
 
-            print(f"Local ImageFolder loaded successfully")
-            print(f"Train: {len(train_dataset)} samples")
-            print(f"Val: {len(val_dataset)} samples")
             dataset_loaded = True
-        else:
-            print("Local data directory not found")
 
     except Exception as e:
-        print(f"Local data loading failed: {e}")
+        pass
 
 if not dataset_loaded:
-    print("\nERROR: Could not load CelebA dataset with any method!")
-    print("\nTo set up CelebA dataset:")
-    print("1. Run: python setup_celeba.py")
-    print("2. Or download manually from: https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html")
-    print("3. Or run: python test_celeba.py to create a mock dataset")
     sys.exit(1)
 
 # Create dataloaders (using standard collate since torchvision CelebA works)
-print("\nCreating dataloaders...")
 train_loader = DataLoader(
     train_dataset,
     batch_size=BATCH_SIZE,
@@ -141,7 +106,6 @@ val_loader = DataLoader(
 )
 
 # Initialize model
-print("\nInitializing model...")
 model = BaselineCBM(num_concepts=40, num_classes=2).to(DEVICE)
 
 # Optimizer
@@ -159,13 +123,8 @@ history = {
 # Create outputs directory
 os.makedirs('outputs', exist_ok=True)
 
-print("\n" + "="*60)
-print("Starting training...")
-print("="*60)
-
 # Training loop
 for epoch in range(NUM_EPOCHS):
-    print(f"\nEpoch {epoch+1}/{NUM_EPOCHS}")
 
     # ==== TRAINING ====
     model.train()
@@ -239,10 +198,6 @@ for epoch in range(NUM_EPOCHS):
     history['val_loss'].append(avg_val_loss)
     history['val_acc'].append(val_acc)
 
-    # Print summary
-    print(f"  Train Loss: {avg_train_loss:.4f} | Train Acc: {train_acc:.2f}%")
-    print(f"  Val Loss:   {avg_val_loss:.4f} | Val Acc:   {val_acc:.2f}%")
-
     # Save checkpoint
     if (epoch + 1) % 5 == 0 or epoch == NUM_EPOCHS - 1:
         torch.save({
@@ -251,12 +206,6 @@ for epoch in range(NUM_EPOCHS):
             'optimizer_state_dict': optimizer.state_dict(),
             'val_acc': val_acc,
         }, f'outputs/baseline_cbm_epoch{epoch+1}.pth')
-        print(f"  Checkpoint saved")
-
-# Training complete
-print("\n" + "="*60)
-print("Training complete!")
-print("="*60)
 
 # Plot curves
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
@@ -279,38 +228,157 @@ ax2.grid(True)
 
 plt.tight_layout()
 plt.savefig('outputs/step1_training_curves.png', dpi=150)
-print("Saved training curves to outputs/step1_training_curves.png")
-
-# Final results
-print(f"\nFinal Results:")
-print(f"   Training Accuracy:   {history['train_acc'][-1]:.2f}%")
-print(f"   Validation Accuracy: {history['val_acc'][-1]:.2f}%")
-
-if history['val_acc'][-1] > 75:
-    print("\nSUCCESS! Validation accuracy > 75%")
-    print("   Step 1 complete! Ready for Step 2.")
-else:
-    print(f"\nValidation accuracy below 75%")
-    print("   Consider training for more epochs or adjusting hyperparameters")
-
-print("\n" + "="*60)
 
 # Additional: Test concept predictions
-print("\nTesting concept predictions...")
 model.eval()
 with torch.no_grad():
-    # Get a small batch
     sample_images, sample_attrs = next(iter(val_loader))
     sample_images = sample_images[:4].to(DEVICE)
     sample_attrs = sample_attrs[:4].to(DEVICE)
 
-    # Get concept predictions
     concepts = model.predict_concepts(sample_images)
-    print(f"Concept predictions shape: {concepts.shape}")
-    print(f"Sample concept values: {concepts[0][:5]}")
-
-    # Test task from concepts
     task_from_concepts = model.predict_task_from_concepts(concepts)
-    print(f"Task from concepts shape: {task_from_concepts['task_logits'].shape}")
 
-print("\nAll tests completed successfully!")
+# RQ2 Setup (EXPANDED): Boolean Structure Discovery
+# Prepare CelebA data for concept prediction experiments
+
+# EXPANDED TO 10 TASKS (from original 4) for:
+# - Stronger statistical validation
+# - Diverse Boolean patterns (AND, OR, XOR)
+# - Task difficulty analysis
+# - Better paper section
+
+# Research Question: What's the best method to learn Boolean rules over concepts?
+# - Method 1: Decision Trees (sklearn)
+# - Method 2: Differentiable Logic (UniquePolynomialLayer)
+
+import numpy as np
+from collections import defaultdict
+import json
+
+# Configuration
+DATA_DIR = './data'
+OUTPUT_DIR = './data/rq2_boolean_discovery_expanded'
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+# CelebA attributes (40 total)
+ATTRIBUTE_NAMES = [
+    '5_o_Clock_Shadow', 'Arched_Eyebrows', 'Attractive', 'Bags_Under_Eyes',
+    'Bald', 'Bangs', 'Big_Lips', 'Big_Nose', 'Black_Hair', 'Blond_Hair',
+    'Blurry', 'Brown_Hair', 'Bushy_Eyebrows', 'Chubby', 'Double_Chin',
+    'Eyeglasses', 'Goatee', 'Gray_Hair', 'Heavy_Makeup', 'High_Cheekbones',
+    'Male', 'Mouth_Slightly_Open', 'Mustache', 'Narrow_Eyes', 'No_Beard',
+    'Oval_Face', 'Pale_Skin', 'Pointy_Nose', 'Receding_Hairline', 'Rosy_Cheeks',
+    'Sideburns', 'Smiling', 'Straight_Hair', 'Wavy_Hair', 'Wearing_Earrings',
+    'Wearing_Hat', 'Wearing_Lipstick', 'Wearing_Necklace', 'Wearing_Necktie', 'Young'
+]
+
+# TASK 1 IMPLEMENTATION: Wearing_Lipstick (Medium Difficulty)
+# This is the main task we'll implement in this file
+
+# Helper function to get attribute index
+def get_attr_idx(attr_name):
+    try:
+        return ATTRIBUTE_NAMES.index(attr_name)
+    except ValueError:
+        raise ValueError(f"Attribute {attr_name} not found in CelebA attributes")
+
+# Extract attributes for the main task
+def extract_lipstick_task_data():
+
+    # Get indices
+    target_idx = get_attr_idx('Wearing_Lipstick')
+    concept_indices = [get_attr_idx(c) for c in ['Male', 'Young', 'Attractive', 'Smiling', 'Heavy_Makeup']]
+
+    # Create task directory
+    task_dir = os.path.join(OUTPUT_DIR, 'task1_lipstick')
+    os.makedirs(task_dir, exist_ok=True)
+
+    # Extract from datasets if available
+    if train_dataset and val_dataset:
+        # Process training data (sample first 10k for speed)
+        n_samples = min(10000, len(train_dataset))
+        X_train = []
+        y_train = []
+
+        for i in range(n_samples):
+            _, attrs = train_dataset[i]
+            # Extract base concepts and target
+            X_train.append(attrs[concept_indices].numpy())
+            y_train.append(attrs[target_idx].item())
+
+        X_train = np.array(X_train, dtype=np.float32)
+        y_train = np.array(y_train, dtype=np.int64)
+
+        # Process validation data
+        n_val_samples = min(2000, len(val_dataset))
+        X_val = []
+        y_val = []
+
+        for i in range(n_val_samples):
+            _, attrs = val_dataset[i]
+            X_val.append(attrs[concept_indices].numpy())
+            y_val.append(attrs[target_idx].item())
+
+        X_val = np.array(X_val, dtype=np.float32)
+        y_val = np.array(y_val, dtype=np.int64)
+
+        # Convert to 0/1 from -1/1 (CelebA uses -1/1)
+        X_train = (X_train + 1) / 2
+        y_train = (y_train + 1) // 2
+        X_val = (X_val + 1) / 2
+        y_val = (y_val + 1) // 2
+
+        # Save as numpy (for sklearn)
+        np.save(os.path.join(task_dir, 'X_train.npy'), X_train)
+        np.save(os.path.join(task_dir, 'y_train.npy'), y_train)
+        np.save(os.path.join(task_dir, 'X_val.npy'), X_val)
+        np.save(os.path.join(task_dir, 'y_val.npy'), y_val)
+
+        # Save as PyTorch (for differentiable logic)
+        torch.save({
+            'X': torch.from_numpy(X_train),
+            'y': torch.from_numpy(y_train),
+            'concept_names': ['Male', 'Young', 'Attractive', 'Smiling', 'Heavy_Makeup'],
+            'target_name': 'Wearing_Lipstick'
+        }, os.path.join(task_dir, 'train.pt'))
+
+        torch.save({
+            'X': torch.from_numpy(X_val),
+            'y': torch.from_numpy(y_val),
+            'concept_names': ['Male', 'Young', 'Attractive', 'Smiling', 'Heavy_Makeup'],
+            'target_name': 'Wearing_Lipstick'
+        }, os.path.join(task_dir, 'val.pt'))
+
+        # Compute statistics
+        class_dist = np.bincount(y_train) / len(y_train)
+
+        # Save task metadata
+        metadata = {
+            'task_id': 'task1_lipstick',
+            'task_name': 'Wearing_Lipstick',
+            'difficulty': 'medium',
+            'base_concepts': ['Male', 'Young', 'Attractive', 'Smiling', 'Heavy_Makeup'],
+            'target_concept': 'Wearing_Lipstick',
+            'expected_pattern': '¬Male ∧ (Attractive ∨ Heavy_Makeup)',
+            'description': 'Gender/age/makeup → lipstick',
+            'concept_indices': concept_indices,
+            'target_idx': target_idx,
+            'statistics': {
+                'n_samples': len(y_train),
+                'class_balance': {
+                    'negative': float(class_dist[0]),
+                    'positive': float(class_dist[1])
+                }
+            }
+        }
+
+        with open(os.path.join(task_dir, 'metadata.json'), 'w') as f:
+            json.dump(metadata, f, indent=2)
+
+        return True
+    else:
+        return False
+
+# Execute the task creation
+task_created = extract_lipstick_task_data()
