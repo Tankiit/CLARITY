@@ -15,7 +15,8 @@ LEARNING_RATE = 1e-3
 NUM_EPOCHS = 10
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 TASK_ATTR_IDX = 36  # Wearing_Lipstick
-DATA_DIR = "/home/cril/Meher/Projet-cril/codes/CLARITY/data/celeba"  # upload locally the dataset from kaggle
+DATA_DIR = "/home/cril/Meher/Projet-cril/Projects/cbm-clarity/CLARITY/data/celeba"
+# upload locally the dataset from kaggle
 
 # Data transforms
 transform = transforms.Compose(
