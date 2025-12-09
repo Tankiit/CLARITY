@@ -1,0 +1,28 @@
+{
+  "task_id": "task4_young",
+  "task_name": "Young",
+  "difficulty": "easy",
+  "base_concepts": [
+    "Gray_Hair",
+    "Bald",
+    "Receding_Hairline",
+    "Bags_Under_Eyes"
+  ],
+  "target_concept": "Young",
+  "expected_pattern": "\u00acGray_Hair \u2227 \u00acBald \u2227 \u00acReceding_Hairline",
+  "description": "Facial features \u2192 Young",
+  "concept_indices": [
+    17,
+    4,
+    28,
+    3
+  ],
+  "target_idx": 39,
+  "statistics": {
+    "n_samples": 10000,
+    "class_balance": {
+      "negative": 0.2229,
+      "positive": 0.7771
+    }
+  }
+}

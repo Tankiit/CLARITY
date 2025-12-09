@@ -1,0 +1,30 @@
+{
+  "task_id": "task1_lipstick",
+  "task_name": "Wearing_Lipstick",
+  "difficulty": "medium",
+  "base_concepts": [
+    "Male",
+    "Young",
+    "Attractive",
+    "Smiling",
+    "Heavy_Makeup"
+  ],
+  "target_concept": "Wearing_Lipstick",
+  "expected_pattern": "\u00acMale \u2227 (Attractive \u2228 Heavy_Makeup)",
+  "description": "Gender/age/makeup \u2192 lipstick",
+  "concept_indices": [
+    20,
+    39,
+    2,
+    31,
+    18
+  ],
+  "target_idx": 36,
+  "statistics": {
+    "n_samples": 10000,
+    "class_balance": {
+      "negative": 0.5337,
+      "positive": 0.4663
+    }
+  }
+}

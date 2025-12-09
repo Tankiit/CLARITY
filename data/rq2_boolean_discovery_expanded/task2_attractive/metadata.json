@@ -1,0 +1,30 @@
+{
+  "task_id": "task2_attractive",
+  "task_name": "Attractive",
+  "difficulty": "hard",
+  "base_concepts": [
+    "High_Cheekbones",
+    "Oval_Face",
+    "Smling",
+    "Young",
+    "Heavy_Makeup"
+  ],
+  "target_concept": "Attractive",
+  "expected_pattern": "High_Cheekbones \u2227 (Oval_Face \u2228 Smiling) \u2227 Young",
+  "description": "Facial features \u2192 attractiveness",
+  "concept_indices": [
+    19,
+    25,
+    31,
+    39,
+    18
+  ],
+  "target_idx": 2,
+  "statistics": {
+    "n_samples": 10000,
+    "class_balance": {
+      "negative": 0.4885,
+      "positive": 0.5115
+    }
+  }
+}

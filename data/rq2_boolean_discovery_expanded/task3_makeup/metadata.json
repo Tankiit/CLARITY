@@ -1,0 +1,28 @@
+{
+  "task_id": "task3_makeup",
+  "task_name": "Heavy_Makeup",
+  "difficulty": "medium",
+  "base_concepts": [
+    "Male",
+    "Young",
+    "Wearing_Lipstick",
+    "Rosy_Cheeks"
+  ],
+  "target_concept": "Heavy_Makeup",
+  "expected_pattern": "\u00acMale \u2227 (Wearing_Lipstick \u2228 Rosy_Cheeks)",
+  "description": "Individual makeup features \u2192 heavy makeup",
+  "concept_indices": [
+    20,
+    39,
+    36,
+    29
+  ],
+  "target_idx": 18,
+  "statistics": {
+    "n_samples": 10000,
+    "class_balance": {
+      "negative": 0.6176,
+      "positive": 0.3824
+    }
+  }
+}
