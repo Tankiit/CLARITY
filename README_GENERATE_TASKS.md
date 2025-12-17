@@ -12,7 +12,7 @@ The generated datasets are designed for **Concept Bottleneck Models (CBMs)**, sy
 .
 ├── create_all_functions.py
 ├── cbm_model.py
-├── training_cbm.py
+├── train_cbm.py
 ├── data/
 │   └── rq2_boolean_discovery_expanded/
 │       ├── task1_lipstick/
@@ -147,6 +147,7 @@ Outputs:
 - Model checkpoints
 - Training curves
 - Validation accuracy
+- Generated Files (Per Task)
 
 ---
 
