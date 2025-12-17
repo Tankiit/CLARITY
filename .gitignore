@@ -37,7 +37,7 @@ ENV/
 .ipynb_checkpoints
 
 # Model checkpoints and outputs
-*.pt
+#*.pt
 *.pth
 *.pkl
 *.h5
@@ -52,10 +52,12 @@ disentangled_vae_*_output/
 
 # Data files
 data/
-*.npz
-*.npy
-*.zip
-*.tar.gz
+celeba/
+# *.npz
+# *.npy
+# *.zip
+# *.tar.gz
+
 
 # Logs
 *.log
@@ -70,3 +72,15 @@ Thumbs.db
 *.tmp
 *.bak
 
+# Add by Meher 
+wheelhouse/
+requirements.txt
+slurm-script.txt
+zme.m
+missing_libraries.py
+train_ML/
+visualize/
+quick_verification.py
+CLARITY.code-workspace
+z-original.m
+env.txt
